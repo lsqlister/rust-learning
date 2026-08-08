@@ -41,7 +41,8 @@ fn main() {
         println!("The value of m in the inner scope is: {}", m);
     }
 
-    println!("The value of m is: {}", m);
+    println!("The value of m is: {}", m);   
+
 }
 
 
