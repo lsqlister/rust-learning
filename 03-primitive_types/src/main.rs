@@ -2,11 +2,70 @@
 //全局关闭未使用变量警告
 
 use num::complex::Complex;
+use std::fmt::Debug;
 
 fn main() {
     method1();//数值类型
     method2();//字符、布尔、单元类型
     method3();//语句和表达式
+    method4();//函数
+}
+//函数
+fn method4() {
+    let result = add(5, 6);
+    println!("5 + 6 = {}", result);
+
+    another_function(5, 6.1);
+
+    let x = plus_five(5);
+    println!("The value of x is: {}", x);
+
+    let x = plus_or_minus(5);
+    println!("The value of x is: {}", x);
+}
+
+//下面的函数创建了一个无限循环，该循环永不跳出，因此函数也永不返回
+fn forever() -> ! {
+  loop {
+    //...
+  };
+}
+
+//当用 ! 作函数返回类型的时候，表示该函数永不返回( diverging functions )，
+//特别的，这种语法往往用做会导致程序崩溃的函数
+fn dead_end() -> ! {
+  panic!("你已经到了穷途末路，崩溃吧！");
+}
+//下面的 report 函数会隐式返回一个 ()
+fn report<T: Debug>(item: T) {
+  println!("{:?}", item);
+}
+//与上面的函数返回值相同，但是下面的函数显式的返回了 ()
+fn clear(text: &mut String) -> () {
+  *text = String::from("");
+}
+
+fn plus_or_minus(x:i32) -> i32 {
+    if x > 5 {
+        return x - 5
+    }
+    x + 5
+}
+
+/*函数的返回值就是函数体最后一条表达式的返回值，
+当然我们也可以使用 return 提前返回，
+下面的函数使用最后一条表达式来返回一个值*/
+fn plus_five(x:i32) -> i32 {
+    x + 5
+}
+
+fn another_function(x: i32, y: f32) {//去掉 x 或者 y 的任何一个的类型，都会报错
+    println!("The value of x is: {}", x);
+    println!("The value of y is: {}", y);
+}
+
+fn add(i: i32, j: i32) -> i32 {
+   i + j
 }
 //语句和表达式
 fn method3() {
