@@ -110,7 +110,130 @@ fn main() {
     let s3 = takes_and_gives_back(s2);  // s2 被移动到
                                         // takes_and_gives_back 中,
                                         // 它也将返回值移给 s3
+
+
+
+
+    //2.引用与解引用
+    let x = 5;
+    let y = &x;
+
+    assert_eq!(5, x);
+    assert_eq!(5, *y);//如果希望对 y 的值做出断言，
+    //必须使用 *y 来解出引用所指向的值（也就是解引用）。
+
+    let s1 = String::from("hello");
+    //我们用 s1 的引用作为参数传递给 calculate_length 函数，而不是把 s1 的所有权转移给该函数
+    let len = calculate_length(&s1);
+    println!("The length of '{}' is {}.", s1, len);
+    /*能注意到两点：
+    无需像上章一样：先通过函数参数传入所有权，然后再通过函数返回来传出所有权，代码更加简洁
+    calculate_length 的参数 s 类型从 String 变为 &String*/
+
+
+
+    /*fn main() {
+        let s = String::from("hello");
+        change(&s);
+    }
+    fn change(some_string: &String) {
+        some_string.push_str(", world");
+    } */
+   //正如变量默认不可变一样，引用指向的值默认也是不可变的，没事，来一起看看如何解决这个问题。
+   /*
+   fn main() {
+    let mut s = String::from("hello");
+    change(&mut s);
+  }
+    fn change(some_string: &mut String) {
+        some_string.push_str(", world");
+    }
+    */
+    //声明 s 是可变类型，其次创建一个可变的引用 &mut s 
+    //和接受可变引用参数 some_string: &mut String 的函数。
+
+    //不过可变引用并不是随心所欲、想用就用的，它有一个很大的限制： 
+    //同一作用域，特定数据只能有一个可变引用：
+    let mut s = String::from("hello");
+    let r1 = &mut s; println!("{}", r1);
+    let r2 = &mut s; println!("{}", r2);
+
+    //上面代码ok,下面代码报错
+    /*let mut s = String::from("hello");
+    let r1 = &mut s;
+    let r2 = &mut s;
+    println!("{}, {}", r1, r2);*/
+
+    /*对于新手来说，这个特性绝对是一大拦路虎，
+    也是新人们谈之色变的编译器 borrow checker 特性之一，不过各行各业都一样，限制往往是出于安全的考虑，Rust 也一样。
+
+    这种限制的好处就是使 Rust 在编译期就避免数据竞争，数据竞争可由以下行为造成：
+    两个或更多的指针同时访问同一数据
+    至少有一个指针被用来写入数据
+    没有同步数据访问的机制 */
+    
+    //很多时候，大括号可以帮我们解决一些编译不通过的问题，通过手动限制变量的作用域：
+    let mut s = String::from("hello");
+
+    {
+        let r1 = &mut s;
+
+    } // r1 在这里离开了作用域，所以我们完全可以创建一个新的引用
+
+    let r2 = &mut s;
+    
+
+    //可变引用与不可变引用不能同时存在
+    //下面的代码会导致一个错误：
+    let mut s = String::from("hello");
+
+    let r1 = &s; // 没问题
+    let r2 = &s; // 没问题
+    println!("{}, and {}", r1, r2);
+    //let r3 = &mut s; // 大问题
+    //println!("{}, {}, and {}", r1, r2, r3);
+    //正在借用不可变引用的用户，肯定不希望他借用的东西，被另外一个人莫名其妙改变了
+    //注意，引用 r1,r2,r3 的作用域从创建开始，一直持续到它最后一次使用的地方 println!(....)，
+    //这个跟变量的作用域有所不同，变量的作用域从创建持续到某一个花括号 }
+
+
+    let mut s = String::from("hello");
+
+    let r1 = &s;
+    let r2 = &s;
+    println!("{} and {}", r1, r2);
+    // 新编译器中，r1,r2作用域在这里结束
+    let r3 = &mut s;
+    println!("{}", r3);
+    // 在老版本的编译器中（Rust 1.31 前），将会报错，
+    // 因为 r1 和 r2 的作用域在花括号 } 处结束，
+    // 那么 r3 的借用就会触发 无法同时借用可变和不可变 的规则。
+
+
+
+    /*NLL
+    对于这种编译器优化行为，
+    Rust 专门起了一个名字 —— Non-Lexical Lifetimes(NLL)，专门用于找到某个引用在作用域(})
+    结束前就不再被使用的代码位置。*/
+    //let reference_to_nothing = dangle();
+
+    //借用规则总结
+    /*总的来说，借用规则如下：
+    同一时刻，你只能拥有要么一个可变引用，要么任意多个不可变引用
+    引用必须总是有效的*/
 }
+
+//fn dangle() -> &String { // dangle 返回一个字符串的引用
+//    let s = String::from("hello"); // s 是一个新字符串
+    //&s // 返回字符串 s 的引用
+//} // 这里 s 离开作用域并被丢弃。其内存被释放。
+  // 危险！
+
+fn calculate_length(s: &String) -> usize {
+    s.len()
+}
+
+
 // 这里, s3 移出作用域并被丢弃。s2 也移出作用域，但已被移走，
   // 所以什么也不会发生。s1 移出作用域并被丢弃
 
