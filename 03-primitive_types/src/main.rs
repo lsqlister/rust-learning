@@ -6,6 +6,49 @@ use num::complex::Complex;
 fn main() {
     method1();//数值类型
     method2();//字符、布尔、单元类型
+    method3();//语句和表达式
+}
+//语句和表达式
+fn method3() {
+    //语句
+    let a = 8;
+    let b: Vec<f64> = Vec::new();
+    let (a, c) = ("hi", false);
+    //以上都是语句，它们完成了一个具体的操作，但是并没有返回值，因此是语句。
+
+    //由于 let 是语句，因此不能将 let 语句赋值给其它值，如下形式是错误的：
+    //let b = (let a = 8);
+
+    //表达式
+    //调用一个函数是表达式，因为会返回一个值，调用宏也是表达式，
+    //用花括号包裹最终返回一个值的语句块也是表达式，总之，能返回值，它就是表达式:
+    let y = {
+        let x = 3;
+        x + 1
+    };
+    println!("The value of y is: {}", y);
+
+    assert_eq!(ret_unit_type(), ());
+}
+
+fn ret_unit_type() {
+    let x = 1;
+    // if 语句块也是一个表达式，因此可以用于赋值，也可以直接返回
+    // 类似三元运算符，在Rust里我们可以这样写
+    let y = if x % 2 == 1 {
+        "odd"
+    } else {
+        "even"
+    };
+    // 或者写成一行
+    let z = if x % 2 == 1 { "odd" } else { "even" };
+}
+
+//Rust 的函数体是由一系列语句组成，最后由一个表达式来返回值
+fn add_with_extra(x: i32, y: i32) -> i32 {
+    let x = x + 1; // 语句
+    let y = y + 5; // 语句
+    x + y // 表达式
 }
 
 //字符、布尔、单元类型
